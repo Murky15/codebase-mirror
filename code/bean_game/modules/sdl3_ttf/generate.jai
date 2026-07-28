@@ -1,3 +1,7 @@
+/*
+  TODO: Patch flags to use enum_flags
+*/
+
 LIBRARY_BASE_NAME :: "sdl3_ttf";
 
 #run {

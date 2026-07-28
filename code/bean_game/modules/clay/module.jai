@@ -54,44 +54,32 @@ Clay_GetString :: inline (str: Clay_String) -> string {
   return {str.length, str.chars};
 }
 
-/* NOTE
-    Compared to the C usage of element macros:
-    CLAY(CLAY_ID("Outer"), { .layout = { .padding = CLAY_PADDING_ALL(16) } }) {
-      // Child elements here
-    }
+/*
+Clay_UI :: (element: Clay_ElementDeclaration, code := #code,null) #expand {
+  Clay__OpenElement();
+  Clay__ConfigureOpenElement(element);
+  #insert code;
+  Clay__CloseElement();
+}
 
-    We use `if` statements in Jai to scope child elements and obtain the same effect:
-    if Clay_UI(Clay_Id("outer"), { layout = { padding = Clay_PaddingAll(16) } }) {
-      // Child elements here
-    }
+Clay_UI :: (id: Clay_ElementId, element: Clay_ElementDeclaration, code := #code,null) #expand {
+  Clay__OpenElementWithId(id);
+  Clay__ConfigureOpenElement(element);
+  #insert code;
+  Clay__CloseElement();
+}
 */
 
-Clay_UI :: inline (element := Clay_ElementDeclaration.{}) {
-  Clay__OpenElement();
-  Clay__ConfigureOpenElement(element);
-  Clay__CloseElement();
-}
-
-Clay_UI :: inline (id: Clay_ElementId, element := Clay_ElementDeclaration.{}) {
+configure_open_element_proc :: type_of(Clay__ConfigureOpenElement)
+Clay_UI :: (id: Clay_ElementId) -> configure_open_element_proc {
   Clay__OpenElementWithId(id);
-  Clay__ConfigureOpenElement(element);
+  return Clay__ConfigureOpenElement;
+}
+
+for_expansion :: (proc: configure_open_element_proc, body: Code, flags: For_Flags) #expand {
+  #assert flags == 0;
+  #insert body;
   Clay__CloseElement();
-}
-
-Clay_PushUI :: (element := Clay_ElementDeclaration.{}) -> bool #expand {
-  Clay__OpenElement();
-  Clay__ConfigureOpenElement(element);
-  `defer Clay__CloseElement();
-
-  return true;
-}
-
-Clay_PushUI :: (id: Clay_ElementId, element := Clay_ElementDeclaration.{}) -> bool #expand {
-  Clay__OpenElementWithId(id);
-  Clay__ConfigureOpenElement(element);
-  `defer Clay__CloseElement();
-
-  return true;
 }
 
 Clay_Text :: inline ($$text: string, config := Clay_TextElementConfig.{}) {

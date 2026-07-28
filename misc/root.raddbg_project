@@ -1,7 +1,11 @@
 // raddbg 0.9.25 project file
 
-recent_file: path: "../code/bean_game/main.jai"
+recent_file: path: "../code/bean_game/website/website.jai"
+recent_file: path: "D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/Runtime_Support.jai"
+recent_file: path: "../code/bean_game/modules/clay/module.jai"
+recent_file: path: "../code/bean_game/test.jai"
+recent_file: path: "../code/bean_game/main.jai"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/String/module.jai"
 recent_file: path: "../code/bean_game/map_and_menu.jai"
 recent_file: path: "../code/bean_game/common.jai"
@@ -10,7 +14,6 @@ recent_file: path: "../code/bean_game/map.jai"
 recent_file: path: "T:/jai/modules/Runtime_Support.jai"
 recent_file: path: "../code/bean_game/.build/.added_strings_w3.jai"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/Math/module.jai"
-recent_file: path: "D:/a/_work/1/s/src/vctools/crt/vcstartup/src/startup/exe_common.inl"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/Default_Allocator/module.jai"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/Basic/module.jai"
 recent_file: path: "C:/Users/gmb/Workspace/Tools/jai/modules/Unicode.jai"
@@ -32,15 +35,30 @@ target:
 {
   executable: "../build/BeanGame.exe"
   working_directory: "../build"
-  enabled: 1
 }
 debug_info:
 {
   path: "W:/build/BeanGame.pdb"
   timestamp: 66219906272191
 }
+debug_info:
+{
+  path: "W:/code/bean_game/test.pdb"
+  timestamp: 66220741104713
+}
 breakpoint:
 {
-  source_location: "../code/bean_game/main.jai:323:1"
-  hit_count: 1
+  source_location: "../code/bean_game/test.jai:16:1"
+  hit_count: 0
+}
+target:
+{
+  executable: "../build/index.exe"
+  working_directory: "../build/"
+  enabled: 1
+}
+debug_info:
+{
+  path: "W:/build/index.pdb"
+  timestamp: 66221001139843
 }

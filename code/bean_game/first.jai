@@ -3,54 +3,55 @@ OUTPUT_NAME :: "BeanGame";
 #run {
   global_opts := get_build_options();
   global_opts.text_output_flags = xx 0;
+  global_opts.output_path = join(#filepath, "../../build");
 
   args := global_opts.compile_time_command_line;
   build_wasm    := array_find(args, "wasm");
   build_website := array_find(args, "website");
 
-  // NOTE: Website build
+  if build_wasm {
+    using global_opts;
+
+    output_type                         = .EXECUTABLE;
+    backend                             = .LLVM;
+    os_target                           = .WASM;
+    cpu_target                          = .CUSTOM;
+    emit_debug_info                     = .DWARF;
+    backtrace_on_crash                  = .OFF;
+    runtime_support_definitions         = .OMIT;
+    llvm_options.target_system_features = "+bulk-memory"; // NOTE: Not working?
+    llvm_options.enable_split_modules   = false;
+    llvm_options.function_sections      = true;
+
+    walloc_object_file_path := join(#filepath, "modules/Walloc/walloc.o");
+    additional_linker_arguments = .[walloc_object_file_path];
+
+    import_paths: [..] string;
+    array_add(*import_paths, join(#filepath, "modules"));
+    for global_opts.import_path array_add(*import_paths, it);
+    global_opts.import_path = import_paths;
+  }
+
   if build_website {
     w := compiler_create_workspace("Website");
 
     web_opts := get_build_options(w);
     copy_commonly_propagated_fields(global_opts, *web_opts);
-    {
-      using web_opts;
-      output_path                         = #filepath; // TODO: Temporary!
-      output_type                         = .EXECUTABLE;
-      backend                             = .LLVM;
-      os_target                           = .WASM;
-      cpu_target                          = .CUSTOM;
-      emit_debug_info                     = .DWARF;
-      backtrace_on_crash                  = .OFF;
-      runtime_support_definitions         = .OMIT;
-      output_executable_name              = "index";
-      llvm_options.target_system_features = "+bulk-memory"; // NOTE: Not working?
-      llvm_options.enable_split_modules   = false;
-      llvm_options.function_sections      = true;
-
-      walloc_object_file_path := join(#filepath, "modules/Walloc/walloc.o");
-      additional_linker_arguments = .[walloc_object_file_path];
-    }
-
-    import_paths: [..] string;
-    array_add(*import_paths, join(#filepath, "modules"));
-    for web_opts.import_path array_add(*import_paths, it);
-    web_opts.import_path = import_paths;
-
+    web_opts.output_path = global_opts.output_path;
+    web_opts.output_executable_name = "index";
     set_build_options(web_opts, w);
-    remap_import(w, "*", "Default_Allocator", "Walloc");
-    add_build_file(join(#filepath, "website.jai"), w);
-  } 
 
-  // NOTE: Game build
+    if build_wasm remap_import(w, "*", "Default_Allocator", "Walloc");
+    add_build_file(join(#filepath, "website/website.jai"), w);
+  }
+
   // TODO: For emscripten builds, compile to WASM object file and then call emcc on that, not the llvm bc
   {
     w := compiler_create_workspace("Game");
 
-    options := get_build_options(w);
-    copy_commonly_propagated_fields(global_opts, *options);
-    options.output_path = join(#filepath, "../../build");
+    game_opts := get_build_options(w);
+    copy_commonly_propagated_fields(global_opts, *game_opts);
+    game_opts.output_path = global_opts.output_path;
 
     // TODO: This process will need to be expanded obviously.
     art_path, map_path: string;
@@ -64,10 +65,10 @@ OUTPUT_NAME :: "BeanGame";
     exposed_art_path := art_path;
     exposed_map_path := map_path;
 
-    options.backend = .LLVM;
-    options.output_executable_name = OUTPUT_NAME;
-    set_optimization(*options, .VERY_DEBUG);
-    set_build_options(options, w);
+    game_opts.backend = .LLVM;
+    game_opts.output_executable_name = OUTPUT_NAME;
+    set_optimization(*game_opts, .VERY_DEBUG);
+    set_build_options(game_opts, w);
 
     add_build_string(tprint("art_path :: \"%\";\nmap_path :: \"%\";", exposed_art_path, exposed_map_path), w);
     add_build_file(join(#filepath, "main.jai"), w);

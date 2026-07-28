@@ -36,20 +36,21 @@ window:
         }
         0.623888:
         {
+          selected
           getting_started
           text:
           {
             selected
-            expression: "file:\"W:/code/bean_game/main.jai\".data"
+            expression: "file:\"W:/code/bean_game/website/website.jai\".data"
             auto: 1
             query:
             {
               input: ""
               cmd: search
             }
-            cursor_line: 324
+            cursor_line: 25
             cursor_column: 1
-            mark_line: 324
+            mark_line: 25
             mark_column: 1
           }
           text:
@@ -64,6 +65,16 @@ window:
             cursor_line: 305
             cursor_column: 1
             mark_line: 305
+            mark_column: 1
+          }
+          text:
+          {
+            expression: "file:\"W:/code/bean_game/test.jai\".data"
+            project: "W:/misc/root.raddbg_project"
+            query: input: ""
+            cursor_line: 17
+            cursor_column: 1
+            mark_line: 17
             mark_column: 1
           }
         }
@@ -97,16 +108,12 @@ window:
     {
       0.50:
       {
-        selected
-        watch: selected expression: "query:targets"
+        watch: expression: "query:targets"
         watch:
         {
+          selected
           expression: ""
-          watch: it
-          watch: map
-          watch: context
-          watch: menu
-          watch: font_path
+          watch: fonts
         }
         watch: expression: "query:locals"
       }
@@ -247,7 +254,7 @@ keybindings:
   { log_marker m ctrl shift alt }
   { toggle_dev_menu d ctrl shift alt }
 }
-current_path: "W:/code/bean_game"
+current_path: "W:/build"
 file_path_map:
 {
   source: "W:/code/soniboy/main.jai"

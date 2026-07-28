@@ -1,7 +1,4 @@
-/*
-  NOTE: Ok, new plan. What if I wrapped the WASM build into a static library. Would that play nice with Jai's builtin linking architecture?
-  Then I can replicate the sdl3 renderer and use emscripten to compile for the web! Giving me a desktop and web renderer.
-*/
+// TODO: Use Jai builtin math definitions for Vectors
 
 AT_COMPILE_TIME :: true;
 
