@@ -41,16 +41,16 @@ window:
           text:
           {
             selected
-            expression: "file:\"W:/code/bean_game/website/website.jai\".data"
+            expression: "file:\"C:/Users/gmb/Workspace/Tools/jai/modules/Runtime_Support.jai\".data"
             auto: 1
             query:
             {
               input: ""
               cmd: search
             }
-            cursor_line: 25
+            cursor_line: 224
             cursor_column: 1
-            mark_line: 25
+            mark_line: 224
             mark_column: 1
           }
           text:
@@ -111,11 +111,10 @@ window:
         watch: expression: "query:targets"
         watch:
         {
-          selected
           expression: ""
           watch: fonts
         }
-        watch: expression: "query:locals"
+        watch: selected expression: "query:locals"
       }
       0.50:
       {

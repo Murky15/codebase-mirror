@@ -124,16 +124,13 @@ main :: () {
 
     Clay_UI(Clay_Id("OuterContainer"), {
       layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), layoutDirection = .TOP_TO_BOTTOM},
-      backgroundColor = COLOR_LIGHT},
-    #code {
+      backgroundColor = COLOR_LIGHT}, #code {
       header();
 
       Clay_UI(Clay_Id("OuterScrollContainer"), {
         layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 32, layoutDirection = .TOP_TO_BOTTOM},
         backgroundColor = COLOR_LIGHT,
-        clip = {vertical = true, childOffset = Clay_GetScrollOffset()}},
-      #code {
-        log("%", Clay_GetScrollOffset());
+        clip = {vertical = true, childOffset = Clay_GetScrollOffset()}}, #code {
         Clay_UI(Clay_Id("ButtonContainer"), {layout = {sizing = {width = Clay_SizingGrow()}, childGap = 32, padding = {0, 0, 10, 10}, childAlignment = {x = .CENTER}}}, #code {
           button_decl := Clay_ElementDeclaration.{
             layout = {sizing = {Clay_SizingFixed(140), Clay_SizingFixed(100)}, padding = Clay_PaddingAll(4), childAlignment = {.CENTER, .CENTER}},
@@ -159,8 +156,7 @@ main :: () {
             layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, childAlignment = {x = .CENTER}, layoutDirection = .TOP_TO_BOTTOM},
             backgroundColor = COLOR_LIGHT_ALT,
             cornerRadius = Clay_CornerRadiusAll(6),
-            border = {COLOR_BLACK, Clay_BorderOutside(4)}},
-          #code {
+            border = {COLOR_BLACK, Clay_BorderOutside(4)}}, #code {
             Clay_UI(Clay_Id("AboutHeading"), {layout = {sizing = {width = Clay_SizingGrow()}, childAlignment = {.LEFT, .CENTER}}}, #code {
               Clay_Text("About", {textColor = COLOR_RED, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
             });
@@ -168,7 +164,6 @@ main :: () {
             Clay_Text(ABOUT_TEXT, {textColor = COLOR_BLACK, fontId = FONTFACE_NIPPO_REGULAR, fontSize = 20});
           });
         });
-
       });
     });
   }
@@ -177,10 +172,10 @@ main :: () {
 ABOUT_TEXT_RAW :: #string EOF
 Hello! My name is Gianni Bernardi. I am a student at the Binghamton University Watson college of Engineering and Applied Science, and I am also a recent graduate of Somers High School.
 I have always been infatuated with computers, but I have only seriously gotten into programming since about 2021. I started off writing games for my friends during the COVID-19 lockdowns
-while I was in middle school, one of them being the original Bean Game. Now I am a systems programmer. Not a webdev, and definitely not a graphic designer either (can you tell?).
+while I was in middle school, one of them being the original Bean Game. Now I am a systems programmer, not a webdev, and definitely not a graphic designer either (can you tell?).
 I have experience with a variety of languages, but my go-tos are Jai and C. This game is written in Jai. In fact, this website is written in Jai!
 My original goal for this game was to bring people together during a challenging time, but I lacked the proper skills to make something I was genuinely proud of. So that's
-what this new game is, a gift to my younger self. The game I always wanted but couldn't make. I hope you have as much fun playing it as I did making it.
+what this new game is, a gift to my younger self. The game I always wanted but couldn't make. I hope you have as much fun playing it as I did developing it.
 EOF
 ABOUT_TEXT :: #run replace(ABOUT_TEXT_RAW, "\n", " ");
 

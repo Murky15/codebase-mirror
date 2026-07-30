@@ -54,30 +54,20 @@ Clay_GetString :: inline (str: Clay_String) -> string {
   return {str.length, str.chars};
 }
 
-/*
-Clay_UI :: (element: Clay_ElementDeclaration, code := #code,null) #expand {
+Clay_UI :: (id: Clay_ElementId, config: Code, body := #code,null, call := #caller_code) #expand {
+  patched_config :: #run patch_element_declaration_config(config);
+
+  Clay__OpenElementWithId(id);
+  Clay__ConfigureOpenElement(#insert,scope(call) patched_config);
+  #insert body;
+  Clay__CloseElement();
+}
+
+Clay_UI :: (config: Code, body := #code,null, call := #caller_code) #expand {
+  patched_config :: #run patch_element_declaration_config(config);
+
   Clay__OpenElement();
-  Clay__ConfigureOpenElement(element);
-  #insert code;
-  Clay__CloseElement();
-}
-
-Clay_UI :: (id: Clay_ElementId, element: Clay_ElementDeclaration, code := #code,null) #expand {
-  Clay__OpenElementWithId(id);
-  Clay__ConfigureOpenElement(element);
-  #insert code;
-  Clay__CloseElement();
-}
-*/
-
-configure_open_element_proc :: type_of(Clay__ConfigureOpenElement)
-Clay_UI :: (id: Clay_ElementId) -> configure_open_element_proc {
-  Clay__OpenElementWithId(id);
-  return Clay__ConfigureOpenElement;
-}
-
-for_expansion :: (proc: configure_open_element_proc, body: Code, flags: For_Flags) #expand {
-  #assert flags == 0;
+  Clay__ConfigureOpenElement(#insert,scope(call) patched_config);
   #insert body;
   Clay__CloseElement();
 }
@@ -89,3 +79,32 @@ Clay_Text :: inline ($$text: string, config := Clay_TextElementConfig.{}) {
 }
 
 #load "clay_bindings.jai";
+
+#scope_module
+
+// NOTE: Clay's API heavily relies on C's textual replacement macros.
+// The expected behavior is that when you use the `CLAY` macro to create a new element,
+// that new element is pushed onto Clay's internal element stack as the current open element
+// *before* the element declaration is evaluated. Jai (sensibly) evaluates all arguments before
+// expanding the macro, but this means that any clay function (`GetScrollOffset`, `OnHover`, etc.)
+// called while filling out a normal `ElementDeclaration` parameter will now be broken.
+// This is why bindings to other languages like Odin replace this single macro call with a sequence
+// of function calls to enforce the ordering. My solution instead is to take the `ElementDeclaration`
+// argument as a `Code` instead that we can #insert *after* we open the new element.
+
+// This function simply stitches the proper type into that argument if the user provides
+// an anonymous struct literal.
+patch_element_declaration_config :: (untyped_literal: Code) -> Code {
+  using Compiler :: #import "Compiler";
+
+  untyped_node := cast(*Code_Literal) compiler_get_nodes(untyped_literal);
+  if untyped_node.kind != .LITERAL return untyped_literal;
+
+  typed_literal :: #code Clay_ElementDeclaration.{};
+  typed_node := cast(*Code_Literal) compiler_get_nodes(typed_literal);
+
+  untyped_node.type = typed_node.type;
+  untyped_node.struct_literal_info.type_expression = typed_node.struct_literal_info.type_expression;
+
+  return compiler_get_code(untyped_node);
+}
