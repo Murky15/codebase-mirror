@@ -1,8 +1,26 @@
-COLOR_BLACK     :: #run color_from_hex(0x0a100d); // Onyx
-COLOR_LIGHT     :: #run color_from_hex(0xd6d5c9); // Bone
+/* Retro palette
+COLOR_BLACK      :: #run color_from_hex(0x0a100d); // Onyx
+COLOR_DARK_ALT  :: #run color_from_hex(0xa22c29); // Brown Red
+COLOR_WHITE     :: #run color_from_hex(0xd6d5c9); // Bone
 COLOR_LIGHT_ALT :: #run color_from_hex(0xb9baa3); // Ash Grey
 COLOR_RED       :: #run color_from_hex(0x902923); // Chestnut
-COLOR_RED_ALT   :: #run color_from_hex(0xa22c29); // Brown Red
+*/
+
+/* Summer Ocean Breeze
+COLOR_BLACK      :: #run color_from_hex(0x1d3557);
+COLOR_WHITE     :: #run color_from_hex(0xf1faee);
+COLOR_LIGHT_ALT :: #run color_from_hex(0xa8dadc);
+COLOR_RED       :: #run color_from_hex(0xe63946);
+COLOR_DARK_ALT  :: #run color_from_hex(0x457b9d);
+*/
+
+// Extracted colors from image
+COLOR_INK        :: #run color_from_hex(0x2C2C2A);
+COLOR_PAPER      :: #run color_from_hex(0xECECEC);
+COLOR_CORAL      :: #run color_from_hex(0xFD5C65);
+COLOR_AMBER      :: #run color_from_hex(0xFFB600);
+COLOR_PERIWINKLE :: #run color_from_hex(0x9279FF);
+COLOR_MINT       :: #run color_from_hex(0x36D98C);
 
 window_width:  s32 = 1024;
 window_height: s32 = 768;
@@ -37,33 +55,61 @@ sdl3_measure_text :: (text: Clay_StringSlice, config: *Clay_TextElementConfig, u
   return {xx w, xx h};
 }
 
-divider :: (width_percent: float, color := COLOR_BLACK) {
-  Clay_UI({layout = {sizing = {Clay_SizingPercent(width_percent), Clay_SizingFixed(5)}}, backgroundColor = color, cornerRadius = Clay_CornerRadiusAll(8)});
+num_dividers: u32 = 0;
+divider :: (width_percent: float, color := COLOR_INK) {
+  Clay_UI(Clay_Id("Divider", num_dividers), {layout = {sizing = {width = Clay_SizingGrow()}, childAlignment = {x = .CENTER}}}, #code {
+    Clay_UI({layout = {sizing = {Clay_SizingPercent(width_percent), Clay_SizingFixed(5)}}, backgroundColor = color, cornerRadius = Clay_CornerRadiusAll(8)});
+  });
+  num_dividers += 1;
 }
 
 main_title_size: Clay_Dimensions;
-
 header :: () {
   Clay_UI(Clay_Id("Header"), {layout = {sizing = {width = Clay_SizingGrow()}, childGap = 16, childAlignment = {x = .CENTER}, layoutDirection = .TOP_TO_BOTTOM}}, #code {
     small_text_baseline_padding := Clay_Padding.{bottom = 10};
     Clay_UI(Clay_Id("HeaderContent"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, childGap = 16}}, #code {
       main_title_string := "Bean Game";
-      main_title_config := Clay_TextElementConfig.{textColor = COLOR_BLACK, fontId = FONTFACE_TANKER_REGULAR, fontSize = 60, wrapMode = .NONE};
+      main_title_config := Clay_TextElementConfig.{textColor = COLOR_INK, fontId = FONTFACE_TANKER_REGULAR, fontSize = 60, wrapMode = .NONE};
       if main_title_size.width == 0 {
         main_title_size = sdl3_measure_text({length = xx main_title_string.count, chars = main_title_string.data}, *main_title_config, *fonts);
       }
       Clay_UI(Clay_Id("TitleContainer"), {layout = {sizing = {Clay_SizingFit({min = main_title_size.width}), Clay_SizingGrow()}, layoutDirection = .TOP_TO_BOTTOM}}, #code {
-        Clay_Text("The", {textColor = COLOR_RED, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
+        Clay_Text("The", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
         Clay_Text(main_title_string, main_title_config);
       });
       Clay_UI(Clay_Id("AuthorContainer"), {layout = {sizing = {height = Clay_SizingGrow()}, padding = small_text_baseline_padding, childAlignment = {y = .BOTTOM}}}, #code {
-        Clay_Text("By Gianni Bernardi", {textColor = COLOR_BLACK, fontId = FONTFACE_GEO_REGULAR, fontSize = 32});
+        Clay_Text("By Gianni Bernardi", {textColor = COLOR_INK, fontId = FONTFACE_GEO_REGULAR, fontSize = 32});
       });
       Clay_UI(Clay_Id("SocialsContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = small_text_baseline_padding, childAlignment = {.RIGHT, .BOTTOM}}}, #code {
-        Clay_Text("Put socials here", {textColor = COLOR_BLACK, fontSize = 24});
+        Clay_Text("Put socials here", {textColor = COLOR_INK, fontSize = 24});
       });
     });
-    divider(1, COLOR_RED);
+    divider(1);
+  });
+}
+
+about :: () {
+  Clay_UI(Clay_Id("AboutSectionContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}, childGap = 16, childAlignment = {y = .CENTER}}}, #code {
+    Clay_UI(Clay_Id("AboutTextContainer"), {
+      layout = {sizing = {width = Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, layoutDirection = .TOP_TO_BOTTOM},
+      backgroundColor = COLOR_PAPER,
+      cornerRadius = Clay_CornerRadiusAll(6),
+      border = {COLOR_INK, Clay_BorderOutside(4)}}, #code {
+      Clay_UI(Clay_Id("AboutHeading"), {layout = {sizing = {width = Clay_SizingGrow()}, childAlignment = {.LEFT, .CENTER}}}, #code {
+        Clay_Text("About", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
+      });
+      divider(0.85);
+      Clay_Text(ABOUT_TEXT, {textColor = COLOR_INK, fontId = FONTFACE_NIPPO_REGULAR, fontSize = 24});
+    });
+    Clay_UI(Clay_Id("FeatureListContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childAlignment = {.RIGHT, .CENTER}}}, #code {
+      Clay_UI(Clay_Id("FeatureList"), {layout = { childGap = 32, childAlignment = {x = .CENTER}, layoutDirection = .TOP_TO_BOTTOM}, border = {width = {betweenChildren = 4}, color = COLOR_MINT}}, #code {
+        feature_text_config := Clay_TextElementConfig.{textColor = COLOR_INK, fontSize = 36, textAlignment = .CENTER};
+        Clay_Text("Custom platformer physics", feature_text_config);
+        Clay_Text("Source code available online", feature_text_config);
+        Clay_Text("Playable as an app or in your browser", feature_text_config);
+        Clay_Text("Create and share your own levels!", feature_text_config);
+      });
+    });
   });
 }
 
@@ -124,21 +170,22 @@ main :: () {
 
     Clay_UI(Clay_Id("OuterContainer"), {
       layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), layoutDirection = .TOP_TO_BOTTOM},
-      backgroundColor = COLOR_LIGHT}, #code {
+      backgroundColor = COLOR_PAPER}, #code {
       header();
 
       Clay_UI(Clay_Id("OuterScrollContainer"), {
         layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 32, layoutDirection = .TOP_TO_BOTTOM},
-        backgroundColor = COLOR_LIGHT,
         clip = {vertical = true, childOffset = Clay_GetScrollOffset()}}, #code {
+        BODY_DIVIDER_LENGTH_PERCENT :: 0.85;
+
         Clay_UI(Clay_Id("ButtonContainer"), {layout = {sizing = {width = Clay_SizingGrow()}, childGap = 32, padding = {0, 0, 10, 10}, childAlignment = {x = .CENTER}}}, #code {
           button_decl := Clay_ElementDeclaration.{
             layout = {sizing = {Clay_SizingFixed(140), Clay_SizingFixed(100)}, padding = Clay_PaddingAll(4), childAlignment = {.CENTER, .CENTER}},
-            backgroundColor = COLOR_LIGHT, // NOTE: Transition to `COLOR_LIGHT_ALT` when hovered
+            backgroundColor = COLOR_PAPER, // NOTE: Transition to `COLOR_LIGHT_ALT` when hovered
             cornerRadius = Clay_CornerRadiusAll(6),
-            border = {COLOR_RED_ALT, Clay_BorderOutside(4)}
+            border = {COLOR_INK, Clay_BorderOutside(4)}
           };
-          button_text_config := Clay_TextElementConfig.{textColor = COLOR_BLACK, fontId = FONTFACE_TANKER_REGULAR, fontSize = 32, textAlignment = .CENTER};
+          button_text_config := Clay_TextElementConfig.{textColor = COLOR_AMBER, fontId = FONTFACE_TANKER_REGULAR, fontSize = 32, textAlignment = .CENTER};
 
           Clay_UI(Clay_Id("PlayOnlineButton"), button_decl, #code {
             Clay_Text("Play Online", button_text_config);
@@ -147,22 +194,19 @@ main :: () {
             Clay_Text("Download Now", button_text_config);
           });
           Clay_UI(Clay_Id("CustomLevelsButton"), button_decl, #code {
-            Clay_Text("Custom Levels", button_text_config);
+            Clay_Text("Level Library", button_text_config);
           });
         });
 
-        Clay_UI(Clay_Id("AboutContainer"), {layout = {sizing = {width = Clay_SizingGrow()}}}, #code {
-          Clay_UI(Clay_Id("AboutTextContainer"), {
-            layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, childAlignment = {x = .CENTER}, layoutDirection = .TOP_TO_BOTTOM},
-            backgroundColor = COLOR_LIGHT_ALT,
-            cornerRadius = Clay_CornerRadiusAll(6),
-            border = {COLOR_BLACK, Clay_BorderOutside(4)}}, #code {
-            Clay_UI(Clay_Id("AboutHeading"), {layout = {sizing = {width = Clay_SizingGrow()}, childAlignment = {.LEFT, .CENTER}}}, #code {
-              Clay_Text("About", {textColor = COLOR_RED, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
-            });
-            divider(0.75);
-            Clay_Text(ABOUT_TEXT, {textColor = COLOR_BLACK, fontId = FONTFACE_NIPPO_REGULAR, fontSize = 20});
-          });
+        divider(BODY_DIVIDER_LENGTH_PERCENT / 2);
+        about();
+
+        divider(BODY_DIVIDER_LENGTH_PERCENT);
+        // NOTE: For "code snippets" of the level file included here we should do ink background with paper text
+        // This would allow coral text to stand out for errors
+        Clay_UI(Clay_Id("CustomLevelTutorial"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}}}, #code {
+          Clay_Text("Creating Custom Levels", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
+          Clay_UI(Clay_Id(""));
         });
       });
     });
@@ -195,9 +239,9 @@ init_fonts :: () -> [] *TTF_Font {
 
     faces: [..] string;
     builder: String_Builder;
-    print_to_builder(*builder, "result := *TTF_Font.[\n");
+    print(*builder, "result := *TTF_Font.[\n");
     for dir: FONT_DIRECTORIES_TO_SEARCH {
-      if it_index > 0 print_to_builder(*builder, "\n");
+      if it_index > 0 print(*builder, "\n");
 
       for path: file_list(dir, recursive = false) {
         extension := path_extension(path);
@@ -208,15 +252,15 @@ init_fonts :: () -> [] *TTF_Font {
         replace_chars(face_name_formatted, "-", #char "_");
         array_add(*faces, face_name_formatted);
 
-        print_to_builder(*builder, "\tTTF_OpenFont(\"%\", %),\n", path, FONT_DEFAULT_SIZE);
+        print(*builder, "\tTTF_OpenFont(\"%\", %),\n", path, FONT_DEFAULT_SIZE);
       }
     }
-    print_to_builder(*builder, "];");
+    print(*builder, "];");
     array_string := builder_to_string(*builder);
 
     reset(*builder);
     for faces {
-      print_to_builder(*builder, "FONTFACE_% :u16: %;\n", it, it_index);
+      print(*builder, "FONTFACE_% :u16: %;\n", it, it_index);
     }
     enum_string := builder_to_string(*builder);
 

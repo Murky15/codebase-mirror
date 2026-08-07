@@ -99,9 +99,12 @@ patch_element_declaration_config :: (untyped_literal: Code) -> Code {
 
   untyped_node := cast(*Code_Literal) compiler_get_nodes(untyped_literal);
   if untyped_node.kind != .LITERAL return untyped_literal;
+  if untyped_node.value_type != .STRUCT {
+    compiler_report("This literal must be of struct type `Clay_ElementDeclaration`", make_location(untyped_node));
+  }
 
-  typed_literal :: #code Clay_ElementDeclaration.{};
-  typed_node := cast(*Code_Literal) compiler_get_nodes(typed_literal);
+  TYPED_LITERAL :: #code Clay_ElementDeclaration.{};
+  typed_node := cast(*Code_Literal) compiler_get_nodes(TYPED_LITERAL);
 
   untyped_node.type = typed_node.type;
   untyped_node.struct_literal_info.type_expression = typed_node.struct_literal_info.type_expression;
