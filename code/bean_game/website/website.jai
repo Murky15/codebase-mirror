@@ -1,26 +1,19 @@
-/* Retro palette
-COLOR_BLACK      :: #run color_from_hex(0x0a100d); // Onyx
-COLOR_DARK_ALT  :: #run color_from_hex(0xa22c29); // Brown Red
-COLOR_WHITE     :: #run color_from_hex(0xd6d5c9); // Bone
-COLOR_LIGHT_ALT :: #run color_from_hex(0xb9baa3); // Ash Grey
-COLOR_RED       :: #run color_from_hex(0x902923); // Chestnut
-*/
-
-/* Summer Ocean Breeze
-COLOR_BLACK      :: #run color_from_hex(0x1d3557);
-COLOR_WHITE     :: #run color_from_hex(0xf1faee);
-COLOR_LIGHT_ALT :: #run color_from_hex(0xa8dadc);
-COLOR_RED       :: #run color_from_hex(0xe63946);
-COLOR_DARK_ALT  :: #run color_from_hex(0x457b9d);
-*/
-
-// Extracted colors from image
 COLOR_INK        :: #run color_from_hex(0x2C2C2A);
 COLOR_PAPER      :: #run color_from_hex(0xECECEC);
 COLOR_CORAL      :: #run color_from_hex(0xFD5C65);
 COLOR_AMBER      :: #run color_from_hex(0xFFB600);
 COLOR_PERIWINKLE :: #run color_from_hex(0x9279FF);
 COLOR_MINT       :: #run color_from_hex(0x36D98C);
+
+SCROLL_Y_SENSITIVITY :: 10.0;
+
+// TODO: Kind of annoying that we need to use #run here...
+TEXT_CONTAINER_CONFIG :: #run Clay_ElementDeclaration.{
+  layout = {sizing = {width = Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, layoutDirection = .TOP_TO_BOTTOM},
+  cornerRadius = Clay_CornerRadiusAll(6),
+  border = {COLOR_INK, Clay_BorderOutside(4)}
+};
+BODY_TEXT_CONFIG :: Clay_TextElementConfig.{textColor = COLOR_INK, fontId = FONTFACE_NIPPO_REGULAR, fontSize = 24};
 
 window_width:  s32 = 1024;
 window_height: s32 = 768;
@@ -36,10 +29,9 @@ color_from_hex :: inline (hex: u32, alpha: u8 = 255) -> Clay_Color {
 }
 
 handle_clay_errors :: (error_data: Clay_ErrorData) #c_call {
-  // TODO: Fix this
   context_pointer := cast(*#Context) error_data.userData;
   push_context context_pointer {
-    log("%", to_string(error_data.errorText.chars));
+    log_error("%", to_string(error_data.errorText.chars));
   }
 }
 
@@ -90,16 +82,12 @@ header :: () {
 
 about :: () {
   Clay_UI(Clay_Id("AboutSectionContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}, childGap = 16, childAlignment = {y = .CENTER}}}, #code {
-    Clay_UI(Clay_Id("AboutTextContainer"), {
-      layout = {sizing = {width = Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, layoutDirection = .TOP_TO_BOTTOM},
-      backgroundColor = COLOR_PAPER,
-      cornerRadius = Clay_CornerRadiusAll(6),
-      border = {COLOR_INK, Clay_BorderOutside(4)}}, #code {
+    Clay_UI(Clay_Id("AboutTextContainer"), TEXT_CONTAINER_CONFIG, #code {
       Clay_UI(Clay_Id("AboutHeading"), {layout = {sizing = {width = Clay_SizingGrow()}, childAlignment = {.LEFT, .CENTER}}}, #code {
         Clay_Text("About", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
       });
       divider(0.85);
-      Clay_Text(ABOUT_TEXT, {textColor = COLOR_INK, fontId = FONTFACE_NIPPO_REGULAR, fontSize = 24});
+      Clay_Text(ABOUT_TEXT, BODY_TEXT_CONFIG);
     });
     Clay_UI(Clay_Id("FeatureListContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childAlignment = {.RIGHT, .CENTER}}}, #code {
       Clay_UI(Clay_Id("FeatureList"), {layout = { childGap = 32, childAlignment = {x = .CENTER}, layoutDirection = .TOP_TO_BOTTOM}, border = {width = {betweenChildren = 4}, color = COLOR_MINT}}, #code {
@@ -141,6 +129,8 @@ main :: () {
     dt := (end - start) / 1000.0;
     start = end;
 
+    scroll_amt: Clay_Vector2;
+
     e: SDL_Event;
     while SDL_PollEvent(*e) {
       if cast(SDL_EventType) e.type == {
@@ -150,13 +140,17 @@ main :: () {
           window_width, window_height = e.window.data1, e.window.data2;
           Clay_SetLayoutDimensions({xx window_width, xx window_height});
         case .SDL_EVENT_MOUSE_WHEEL;
-          Clay_UpdateScrollContainers(true, {e.wheel.x, e.wheel.y}, dt);
+          scroll_amt.x += e.wheel.x;
+          scroll_amt.y += e.wheel.y;
       }
     }
 
     mouse_x, mouse_y: float;
     mouse_buttons := SDL_GetMouseState(*mouse_x, *mouse_y);
     Clay_SetPointerState({mouse_x, mouse_y}, cast(bool, mouse_buttons & 0x1));
+
+    scroll_amt.y *= SCROLL_Y_SENSITIVITY;
+    Clay_UpdateScrollContainers(true, scroll_amt, dt);
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -204,16 +198,42 @@ main :: () {
         divider(BODY_DIVIDER_LENGTH_PERCENT);
         // NOTE: For "code snippets" of the level file included here we should do ink background with paper text
         // This would allow coral text to stand out for errors
-        Clay_UI(Clay_Id("CustomLevelTutorial"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}}}, #code {
-          Clay_Text("Creating Custom Levels", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
-          Clay_UI(Clay_Id(""));
+        Clay_UI(Clay_Id("CCLContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}, childGap = 16, layoutDirection = .TOP_TO_BOTTOM}}, #code {
+          code_block_config := TEXT_CONTAINER_CONFIG;
+          code_block_config.layout.sizing = {};
+          code_block_config.backgroundColor = COLOR_INK;
+
+          code_text_config := BODY_TEXT_CONFIG;
+          code_text_config.textColor = COLOR_PAPER;
+
+          Clay_UI(Clay_Id("CCLHeader"), {layout = {sizing = {height = Clay_SizingFixed(84)}}}, #code {
+            Clay_Text("Creating Custom Levels", {textColor = COLOR_PERIWINKLE, fontId = FONTFACE_ARRAY_BOLDWIDE, fontSize = 40});
+          });
+          Clay_UI(Clay_Id("CCLSection1"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}, childGap = 24, childAlignment = {.CENTER, .CENTER}}}, #code {
+            level_box := Clay_GetElementData(Clay_Id("CCLExampleLevelFile")).boundingBox;
+            intro_text_config := TEXT_CONTAINER_CONFIG;
+            intro_text_config.layout.sizing = {Clay_SizingFit({300, level_box.width}), Clay_SizingFit({min = level_box.height})};
+            Clay_UI(Clay_Id("CCLIntroTextContainer"), intro_text_config, #code {
+              Clay_Text(CCL_INTRO_TEXT, BODY_TEXT_CONFIG);
+            });
+            Clay_UI(Clay_Id("CCLExampleLevelFile"), code_block_config, #code {
+              Clay_Text(CCL_EXAMPLE_LEVEL_FILE, code_text_config);
+            });
+            Clay_UI(Clay_Id("CCLExampleLevelPhoto"), {aspectRatio = {1.0}, image = {}});
+          });
+          Clay_UI(Clay_Id("CCLSection2"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}}}, #code {
+            // Map key list
+          });
+          Clay_UI(Clay_Id("CCLSection3"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}}}, #code {
+            // Metadata tags
+          });
         });
       });
     });
   }
 }
 
-ABOUT_TEXT_RAW :: #string EOF
+ABOUT_TEXT :: #string EOF
 Hello! My name is Gianni Bernardi. I am a student at the Binghamton University Watson college of Engineering and Applied Science, and I am also a recent graduate of Somers High School.
 I have always been infatuated with computers, but I have only seriously gotten into programming since about 2021. I started off writing games for my friends during the COVID-19 lockdowns
 while I was in middle school, one of them being the original Bean Game. Now I am a systems programmer, not a webdev, and definitely not a graphic designer either (can you tell?).
@@ -221,7 +241,29 @@ I have experience with a variety of languages, but my go-tos are Jai and C. This
 My original goal for this game was to bring people together during a challenging time, but I lacked the proper skills to make something I was genuinely proud of. So that's
 what this new game is, a gift to my younger self. The game I always wanted but couldn't make. I hope you have as much fun playing it as I did developing it.
 EOF
-ABOUT_TEXT :: #run replace(ABOUT_TEXT_RAW, "\n", " ");
+
+CCL_INTRO_TEXT :: #string EOF
+The Bean Game level files were intentionally designed to be easy to create, edit, and share to encourage the development of custom levels. No complicated map editors required!
+The underlying file format (.bgdat) houses the level layout in the form of ASCII art as well as some meta tags describing things like
+the level name and author. Everything in the file is encoded in plaintext, which means all you need is a standard text editor, like Notepad, to get started making levels.
+EOF
+
+TEXT_BLOCKS :: string.[ABOUT_TEXT, CCL_INTRO_TEXT];
+#run remove_newlines_from_text_blocks(TEXT_BLOCKS,, temp);
+
+CCL_EXAMPLE_LEVEL_FILE :: #string EOF
+Version: 1
+Name: Example Level
+Author: Gianni Bernardi
+Description: Hello, World!
+###############################
+###############################
+###############################
+###############################
+###############################
+###############################
+###############################
+EOF
 
 FONT_DIRECTORIES_TO_SEARCH :: string.[
   "W:/assets/bean_game/fonts/Geo",
@@ -269,6 +311,14 @@ init_fonts :: () -> [] *TTF_Font {
   }
 
   return array_copy(result);
+}
+
+remove_newlines_from_text_blocks :: (blocks: [] string) {
+  for blocks {
+    new_string := replace(it, "\n", " ");
+    assert(new_string.count == it.count);
+    memcpy(it.data, new_string.data, it.count);
+  }
 }
 
 Clay_SDL3RendererData :: struct {
