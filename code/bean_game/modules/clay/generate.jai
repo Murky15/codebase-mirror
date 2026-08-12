@@ -1,10 +1,19 @@
-// TODO: Use Jai builtin math definitions for Vectors
+/* TODO:
+- [ ] Use Jai builtin math definitions for Clay_Vector2 and Clay_Color
+- [ ] Clay_TransitionProperty should be enum_flags
+- [ ] Make Clay_Array a polymorph
+*/
 
 AT_COMPILE_TIME :: true;
 
 SOURCE_DIR :: "clay_source";
 SOURCE_NAME :: "clay.h";
 LIBRARY_BASE_NAME :: "clay";
+
+DECLARATIONS_TO_OMIT :: string.[
+  "Clay_Vector2",
+  "Clay_Color",
+];
 
 target_os := OS;
 source_file: string;

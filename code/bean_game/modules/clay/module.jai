@@ -4,7 +4,14 @@
   - [ ] Line 4077 of clay.h, incorrect CLAY_WASM_EXPORT name
 */
 
-// NOTE: Handwritten macro API
+Clay_Vector2 :: Vector2;
+Clay_Color   :: Vector4;
+
+Clay_Array :: struct (T: Type) {
+  capacity: s32;
+  length: s32;
+  internal_array: *T;
+}
 
 Clay_BorderOutside :: inline (width: u16) -> Clay_BorderWidth {
   return {width, width, width, width, 0};
@@ -111,3 +118,5 @@ patch_element_declaration_config :: (untyped_literal: Code) -> Code {
 
   return compiler_get_code(untyped_node);
 }
+
+#import "Math";
