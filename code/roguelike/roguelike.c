@@ -638,7 +638,7 @@ roguelike_init (Thread_Context *tctx, Game_Init_Package init) { /* NOTE: Always 
   String8 music_path = str8_pushf(init.frame, "%.*sMusic/Background", str8_expand(init.asset_dir));
   Playlist sound_effects = make_playlist_from_dir(init.perm, sfx_path);
   Playlist bg_music = make_playlist_from_dir(init.perm, music_path);
-  run_playlist(init.perm, bg_music, 0.f, true, true);
+  run_playlist(init.perm, bg_music, 100.f, true, true);
 
   Dungeon *dungeon = d_create(init.perm, sprites,
     .target_room_count = 500,

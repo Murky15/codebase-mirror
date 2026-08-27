@@ -7,7 +7,6 @@ COLOR_MINT       :: #run color_from_hex(0x36D98C);
 
 SCROLL_Y_SENSITIVITY :: 10.0;
 
-// TODO: Kind of annoying that we need to use #run here...
 TEXT_CONTAINER_CONFIG :: #run Clay_ElementDeclaration.{
   layout = {sizing = {width = Clay_SizingGrow()}, padding = Clay_PaddingAll(16), childGap = 16, layoutDirection = .TOP_TO_BOTTOM},
   cornerRadius = Clay_CornerRadiusAll(6),
@@ -196,8 +195,6 @@ main :: () {
         about();
 
         divider(BODY_DIVIDER_LENGTH_PERCENT);
-        // NOTE: For "code snippets" of the level file included here we should do ink background with paper text
-        // This would allow coral text to stand out for errors
         Clay_UI(Clay_Id("CCLContainer"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow({min = 100})}, childGap = 16, layoutDirection = .TOP_TO_BOTTOM}}, #code {
           code_block_config := TEXT_CONTAINER_CONFIG;
           code_block_config.layout.sizing = {};
@@ -223,6 +220,7 @@ main :: () {
           });
           Clay_UI(Clay_Id("CCLSection2"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}}}, #code {
             // Map key list
+
           });
           Clay_UI(Clay_Id("CCLSection3"), {layout = {sizing = {Clay_SizingGrow(), Clay_SizingGrow()}}}, #code {
             // Metadata tags
@@ -337,3 +335,4 @@ SDL_Clay_RenderClayCommands :: (rendererData: *Clay_SDL3RendererData, rcommands:
 #import "clay";
 #import "sdl3";
 #import "sdl3_ttf";
+#import "stb_image";

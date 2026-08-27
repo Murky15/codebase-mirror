@@ -72,7 +72,7 @@ Clay_UI :: (config: Code, body := #code,null, call := #caller_code) #expand {
   Clay__CloseElement();
 }
 
-Clay_Text :: inline ($$text: string, config := Clay_TextElementConfig.{}) {
+Clay_Text :: (text: string, config := Clay_TextElementConfig.{}) #expand {
   wrapped := Clay_MakeString(text);
   #if is_constant(text) wrapped.isStaticallyAllocated = true;
   Clay__OpenTextElement(wrapped, config);
