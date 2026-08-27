@@ -311,6 +311,15 @@ init_fonts :: () -> [] *TTF_Font {
   return array_copy(result);
 }
 
+Image :: struct {
+  width, height: s32;
+  data: *u8;
+}
+
+init_images :: () -> Table(string, Image) {
+
+}
+
 remove_newlines_from_text_blocks :: (blocks: [] string) {
   for blocks {
     new_string := replace(it, "\n", " ");
@@ -329,6 +338,7 @@ sdl3_renderer :: #library,no_dll "clay_renderer_sdl3";
 SDL_Clay_RenderClayCommands :: (rendererData: *Clay_SDL3RendererData, rcommands: *Clay_RenderCommandArray) #foreign sdl3_renderer;
 
 #import "Basic";
+#import "Hash_Table";
 #import "Math";
 #import "String";
 
